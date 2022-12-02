@@ -7,7 +7,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  const restPort = process.env.ORDERS_REST_PORT || 80;
+  const restPort = process.env.ORDER_REST_PORT || 80;
 
   await app.listen(restPort);
 
