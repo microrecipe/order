@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package recipes;
+
+service RecipesService {
+  rpc GetRecipeById (RecipeId) returns (Recipe) {}
+}
+
+message RecipeId {
+  int32 id = 1;
+}
+
+message Ingredient {
+  int32 id = 1;
+  string name = 2;
+  int32 quantity = 3;
+  string unit = 4;
+  float price = 5;
+  repeated Nutrition nutritions = 6;
+  int32 recipe_id = 7;
+}
+
+message Nutrition {
+  int32 id = 1;
+  string name = 2;
+  string per_gram = 3;
+  int32 ingredient_id = 4;
+}
+
+message Recipe {
+  int32 id = 1;
+  string name = 2;
+  repeated Ingredient ingredients = 3; 
+}
