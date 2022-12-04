@@ -7,21 +7,21 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Query } from '@nestjs/common/decorators';
+import { Body, Query } from '@nestjs/common/decorators';
 import { AppService } from './app.service';
 import { UserPayload } from './auth/auth.decorator';
 import { JwtAuthGuard } from './auth/auth.guard';
 import { OrderStatus } from './entities/order.entity';
-import { OrderItemDTO, OrdersDTO } from './orders.dto';
+import { CheckoutBody, OrderItemDTO, OrdersDTO } from './orders.dto';
 import { UserType } from './orders.interface';
 
 @Controller('orders')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard)
 export class AppController {
   constructor(private readonly service: AppService) {}
 
   @Post('carts/recipes/:recipeId')
-  @UseGuards(JwtAuthGuard)
   async addToCartFromRecipeId(
     @Param('recipeId') recipeId: number,
     @UserPayload() user: UserType,
@@ -30,7 +30,6 @@ export class AppController {
   }
 
   @Get('carts')
-  @UseGuards(JwtAuthGuard)
   async listItemsInCart(
     @UserPayload() user: UserType,
   ): Promise<OrderItemDTO[]> {
@@ -38,11 +37,18 @@ export class AppController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async listOrders(
     @UserPayload() user: UserType,
     @Query('order_status') orderStatus: OrderStatus,
   ): Promise<OrdersDTO[]> {
     return await this.service.listOrders(user, orderStatus);
+  }
+
+  @Post('checkout')
+  async checkout(
+    @UserPayload() user: UserType,
+    @Body() body: CheckoutBody,
+  ): Promise<string> {
+    return await this.service.checkout(body, user);
   }
 }

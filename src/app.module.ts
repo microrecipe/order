@@ -35,6 +35,16 @@ import { OrderItem } from './entities/order-item.entity';
           url: `${process.env.INGREDIENT_HOST}:${process.env.INGREDIENT_GRPC_PORT}`,
         },
       },
+      {
+        name: ClientPackageNames.orderPlacedTopic,
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'microrecipe',
+            brokers: process.env.KAFKA_BROKERS.split(','),
+          },
+        },
+      },
     ]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

@@ -59,3 +59,22 @@ export interface ListOrder {
   order: Order;
   orderItems?: IOrderItem[];
 }
+
+export interface CheckoutData {
+  address: string;
+  paymentId: number;
+  courierId: number;
+}
+
+export interface OrderPlacedPayload {
+  orderId: number;
+  cartItems: IOrderItem[];
+  courierId: number;
+  paymentId: number;
+  userId: number;
+  timestamp: Date;
+}
+
+export enum TopicNames {
+  orderPlaced = 'order.placed',
+}

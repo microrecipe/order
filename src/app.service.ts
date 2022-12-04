@@ -1,7 +1,9 @@
 import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common/exceptions';
+import { ClientKafka } from '@nestjs/microservices';
 import { ClientGrpc } from '@nestjs/microservices/interfaces';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { OrderItem } from './entities/order-item.entity';
 import { Order, OrderStatus } from './entities/order.entity';
 import { OrderItemDTO, OrdersDTO } from './orders.dto';
@@ -12,6 +14,9 @@ import {
   IRecipe,
   RecipesService,
   UserType,
+  CheckoutData,
+  OrderPlacedPayload,
+  TopicNames,
 } from './orders.interface';
 import { ClientPackageNames } from './package-names.enum';
 
@@ -25,6 +30,8 @@ export class AppService implements OnModuleInit {
     private recipeGrpcClient: ClientGrpc,
     @Inject(ClientPackageNames.ingredientGRPC)
     private ingredientGrpcClient: ClientGrpc,
+    @Inject(ClientPackageNames.orderPlacedTopic)
+    private orderPlacedTopic: ClientKafka,
     @InjectRepository(OrderItem)
     private orderItemsRepository: Repository<OrderItem>,
     @InjectRepository(Order)
@@ -44,7 +51,7 @@ export class AppService implements OnModuleInit {
   private async getOrder(user: UserType): Promise<Order> {
     let order = await this.ordersRepository.findOneBy({
       userId: user.id,
-      orderStatus: null,
+      orderStatus: IsNull(),
     });
 
     if (!order) {
@@ -169,5 +176,46 @@ export class AppService implements OnModuleInit {
     }
 
     return ordersList.map((val) => OrdersDTO.toDTO(val.order, val.orderItems));
+  }
+
+  async checkout(data: CheckoutData, user: UserType): Promise<string> {
+    const order = await this.getOrder(user);
+
+    const orderItems = await this.setOrderItems(
+      await this.orderItemsRepository.find({
+        where: {
+          order: { id: order.id },
+        },
+        order: {
+          id: 'asc',
+        },
+      }),
+    );
+
+    if (orderItems.length < 1) {
+      throw new BadRequestException('Cart is empty');
+    }
+
+    order.orderStatus = 'placed';
+
+    await this.ordersRepository.save(order);
+
+    this.orderPlacedTopic.emit<any, OrderPlacedPayload>(
+      TopicNames.orderPlaced,
+      {
+        orderId: order.id,
+        cartItems: orderItems.map((item) => ({
+          ingredient: { id: item.ingredient.id, name: item.ingredient.name },
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        courierId: data.courierId,
+        paymentId: data.paymentId,
+        userId: user.id,
+        timestamp: order.updatedAt,
+      },
+    );
+
+    return 'Order placed';
   }
 }

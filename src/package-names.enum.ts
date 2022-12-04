@@ -3,4 +3,5 @@ export enum ClientPackageNames {
   recipeTCP = 'RECIPE_TCP_SERVICE',
   ingredientGRPC = 'INGREDIENT_GRPC_SERVICE',
   ingredientTCP = 'INGREDIENT_TCP_SERVICE',
+  orderPlacedTopic = 'ORDER_PLACED_TOPIC',
 }

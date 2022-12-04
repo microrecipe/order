@@ -1,6 +1,11 @@
 import { Expose } from 'class-transformer';
 import { Order } from './entities/order.entity';
-import { IIngredient, IOrderItem } from './orders.interface';
+import {
+  CheckoutData,
+  IIngredient,
+  IOrderItem,
+  OrderPlacedPayload,
+} from './orders.interface';
 
 export class OrderItemDTO {
   static toDTO(orderItem: IOrderItem) {
@@ -46,4 +51,33 @@ export class OrdersDTO {
 
   @Expose({ name: 'total_price' })
   totalPrice: number;
+}
+
+export class CheckoutBody implements CheckoutData {
+  address: string;
+
+  @Expose({ name: 'payment_id' })
+  paymentId: number;
+
+  @Expose({ name: 'delivery_courier_id' })
+  courierId: number;
+}
+
+export class OrderPlacedPayloadDTO implements OrderPlacedPayload {
+  static toDTO(value: OrderPlacedPayload) {
+    const res = new OrderPlacedPayloadDTO();
+
+    res.orderId = value.orderId;
+    res.cartItems = value.cartItems;
+    res.courierId = value.courierId;
+    res.paymentId = value.paymentId;
+    res.userId = value.userId;
+    res.timestamp = value.timestamp;
+  }
+  orderId: number;
+  cartItems: IOrderItem[];
+  courierId: number;
+  paymentId: number;
+  userId: number;
+  timestamp: Date;
 }
