@@ -54,3 +54,8 @@ export interface IOrderItem {
   price?: number;
   quantity?: number;
 }
+
+export interface ListOrder {
+  order: Order;
+  orderItems?: IOrderItem[];
+}

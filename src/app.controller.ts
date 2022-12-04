@@ -7,9 +7,11 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Query } from '@nestjs/common/decorators';
 import { AppService } from './app.service';
 import { UserPayload } from './auth/auth.decorator';
 import { JwtAuthGuard } from './auth/auth.guard';
+import { OrderStatus } from './entities/order.entity';
 import { OrderItemDTO, OrdersDTO } from './orders.dto';
 import { UserType } from './orders.interface';
 
@@ -33,5 +35,14 @@ export class AppController {
     @UserPayload() user: UserType,
   ): Promise<OrderItemDTO[]> {
     return await this.service.listItemsInCart(user);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async listOrders(
+    @UserPayload() user: UserType,
+    @Query('order_status') orderStatus: OrderStatus,
+  ): Promise<OrdersDTO[]> {
+    return await this.service.listOrders(user, orderStatus);
   }
 }

@@ -41,7 +41,7 @@ export class OrdersDTO {
   }
   id: number;
 
-  @Expose({ name: 'order_items' })
+  @Expose({ name: 'items' })
   orderItems: OrderItemDTO[];
 
   @Expose({ name: 'total_price' })

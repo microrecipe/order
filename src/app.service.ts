@@ -3,10 +3,11 @@ import { ClientGrpc } from '@nestjs/microservices/interfaces';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderItem } from './entities/order-item.entity';
-import { Order } from './entities/order.entity';
+import { Order, OrderStatus } from './entities/order.entity';
 import { OrderItemDTO, OrdersDTO } from './orders.dto';
 import {
   IngredientsService,
+  ListOrder,
   IOrderItem,
   IRecipe,
   RecipesService,
@@ -139,5 +140,34 @@ export class AppService implements OnModuleInit {
     );
 
     return orderItems.map((item) => OrderItemDTO.toDTO(item));
+  }
+
+  async listOrders(
+    user: UserType,
+    orderStatus: OrderStatus,
+  ): Promise<OrdersDTO[]> {
+    const orders = await this.ordersRepository.findBy({
+      userId: user.id,
+      orderStatus,
+    });
+
+    const ordersList: ListOrder[] = [];
+
+    for (const order of orders) {
+      const orderItems = await this.setOrderItems(
+        await this.orderItemsRepository.find({
+          where: {
+            order: { id: order.id },
+          },
+          order: {
+            id: 'asc',
+          },
+        }),
+      );
+
+      ordersList.push({ order, orderItems });
+    }
+
+    return ordersList.map((val) => OrdersDTO.toDTO(val.order, val.orderItems));
   }
 }
