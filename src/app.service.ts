@@ -50,16 +50,17 @@ export class AppService implements OnModuleInit {
       recipe = val;
     });
 
-    const orderItems: OrderItem[] = [];
+    const cart = await this.orderItemsRepository.findBy({
+      order: { id: order.id },
+    });
 
     for (const ingredient of recipe.ingredients) {
-      let orderItem = await this.orderItemsRepository.findOneBy({
-        ingredientId: ingredient.id,
-        order: { id: order.id },
-      });
+      const orderItem = cart.find(
+        (item) => item.ingredientId === ingredient.id,
+      );
 
       if (!orderItem) {
-        orderItem = await this.orderItemsRepository.save(
+        await this.orderItemsRepository.save(
           this.orderItemsRepository.create({
             order: { id: order.id },
             ingredientId: ingredient.id,
@@ -69,11 +70,18 @@ export class AppService implements OnModuleInit {
         );
       } else {
         orderItem.quantity += ingredient.quantity;
-        orderItem = await this.orderItemsRepository.save(orderItem);
+        await this.orderItemsRepository.save(orderItem);
       }
-
-      orderItems.push(orderItem);
     }
+
+    const orderItems = await this.orderItemsRepository.find({
+      where: {
+        order: { id: order.id },
+      },
+      order: {
+        id: 'asc',
+      },
+    });
 
     return OrdersDTO.toDTO(order, orderItems);
   }
