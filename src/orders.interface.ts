@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { Order } from './entities/order.entity';
 
 export interface UserType {
   id: number;
@@ -36,4 +37,20 @@ interface RecipeId {
 
 export interface RecipesService {
   getRecipeById(recipeId: RecipeId): Observable<IRecipe>;
+}
+
+export interface IngredientId {
+  id: number;
+}
+
+export interface IngredientsService {
+  getIngredientById(ingredientId: IngredientId): Observable<IIngredient>;
+}
+
+export interface IOrderItem {
+  id?: number;
+  ingredient?: IIngredient;
+  order?: Order;
+  price?: number;
+  quantity?: number;
 }

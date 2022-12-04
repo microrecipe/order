@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package ingredients;
+
+service IngredientsService {
+  rpc ListIngredientsByRecipeId (RecipeId) returns (ListIngredientsRes) {}
+  rpc GetIngredientById (IngredientId) returns (Ingredient) {}
+  rpc SetIngredientToRecipe (SetIngredient) returns (SetIngredientRes) {}
+}
+
+message IngredientId {
+  int32 id = 1;
+}
+
+message RecipeId {
+  int32 id = 1;
+}
+
+message Nutrition {
+  int32 id = 1;
+  string name = 2;
+  string per_gram = 3;
+  int32 ingredient_id = 4;
+}
+
+message Ingredient {
+  int32 id = 1;
+  string name = 2;
+  int32 quantity = 3;
+  string unit = 4;
+  float price = 5;
+  repeated Nutrition nutritions = 6;
+  int32 recipe_id = 7;
+}
+
+message SetIngredient {
+  int32 id = 1;
+  int32 quantity = 2;
+  int32 recipe_id = 3;
+}
+
+message SetIngredientRes {
+  int32 id = 1;
+  string name = 2;
+  int32 quantity = 3;
+  string unit = 4;
+  repeated Nutrition nutritions = 5;
+}
+
+message ListIngredientsRes {
+  repeated Ingredient ingredients = 1;
+}

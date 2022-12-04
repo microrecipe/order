@@ -4,17 +4,26 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
-import { OrdersDTO } from './orders.dto';
-import { IRecipe, RecipesService, UserType } from './orders.interface';
+import { OrderItemDTO, OrdersDTO } from './orders.dto';
+import {
+  IngredientsService,
+  IOrderItem,
+  IRecipe,
+  RecipesService,
+  UserType,
+} from './orders.interface';
 import { ClientPackageNames } from './package-names.enum';
 
 @Injectable()
 export class AppService implements OnModuleInit {
   private recipesService: RecipesService;
+  private ingredientsService: IngredientsService;
 
   constructor(
     @Inject(ClientPackageNames.recipeGRPC)
     private recipeGrpcClient: ClientGrpc,
+    @Inject(ClientPackageNames.ingredientGRPC)
+    private ingredientGrpcClient: ClientGrpc,
     @InjectRepository(OrderItem)
     private orderItemsRepository: Repository<OrderItem>,
     @InjectRepository(Order)
@@ -24,12 +33,14 @@ export class AppService implements OnModuleInit {
   onModuleInit() {
     this.recipesService =
       this.recipeGrpcClient.getService<RecipesService>('RecipesService');
+
+    this.ingredientsService =
+      this.ingredientGrpcClient.getService<IngredientsService>(
+        'IngredientsService',
+      );
   }
 
-  async addToCartFromRecipeId(
-    recipeId: number,
-    user: UserType,
-  ): Promise<OrdersDTO> {
+  private async getOrder(user: UserType): Promise<Order> {
     let order = await this.ordersRepository.findOneBy({
       userId: user.id,
       orderStatus: null,
@@ -44,18 +55,43 @@ export class AppService implements OnModuleInit {
       );
     }
 
+    return order;
+  }
+
+  private async setOrderItems(items: OrderItem[]): Promise<IOrderItem[]> {
+    const orderItems: IOrderItem[] = [];
+
+    for (const item of items) {
+      await this.ingredientsService
+        .getIngredientById({
+          id: item.ingredientId,
+        })
+        .forEach((val) => {
+          orderItems.push({ ...item, ingredient: val });
+        });
+    }
+
+    return orderItems;
+  }
+
+  async addToCartFromRecipeId(
+    recipeId: number,
+    user: UserType,
+  ): Promise<OrdersDTO> {
+    const order = await this.getOrder(user);
+
     let recipe: IRecipe;
 
     await this.recipesService.getRecipeById({ id: recipeId }).forEach((val) => {
       recipe = val;
     });
 
-    const cart = await this.orderItemsRepository.findBy({
+    const orderItems = await this.orderItemsRepository.findBy({
       order: { id: order.id },
     });
 
     for (const ingredient of recipe.ingredients) {
-      const orderItem = cart.find(
+      const orderItem = orderItems.find(
         (item) => item.ingredientId === ingredient.id,
       );
 
@@ -74,15 +110,34 @@ export class AppService implements OnModuleInit {
       }
     }
 
-    const orderItems = await this.orderItemsRepository.find({
-      where: {
-        order: { id: order.id },
-      },
-      order: {
-        id: 'asc',
-      },
-    });
+    const _orderItems = await this.setOrderItems(
+      await this.orderItemsRepository.find({
+        where: {
+          order: { id: order.id },
+        },
+        order: {
+          id: 'asc',
+        },
+      }),
+    );
 
-    return OrdersDTO.toDTO(order, orderItems);
+    return OrdersDTO.toDTO(order, _orderItems);
+  }
+
+  async listItemsInCart(user: UserType): Promise<OrderItemDTO[]> {
+    const order = await this.getOrder(user);
+
+    const orderItems = await this.setOrderItems(
+      await this.orderItemsRepository.find({
+        where: {
+          order: { id: order.id },
+        },
+        order: {
+          id: 'asc',
+        },
+      }),
+    );
+
+    return orderItems.map((item) => OrderItemDTO.toDTO(item));
   }
 }

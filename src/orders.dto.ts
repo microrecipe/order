@@ -1,22 +1,24 @@
 import { Expose } from 'class-transformer';
-import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
+import { IIngredient, IOrderItem } from './orders.interface';
 
 export class OrderItemDTO {
-  static toDTO(orderItem: OrderItem) {
+  static toDTO(orderItem: IOrderItem) {
     const res = new OrderItemDTO();
 
     res.id = orderItem.id;
-    res.ingredientId = orderItem.ingredientId;
     res.price = orderItem.price;
+    res.ingredient = {
+      id: orderItem.ingredient.id,
+      name: orderItem.ingredient.name,
+    };
     res.quantity = orderItem.quantity;
 
     return res;
   }
   id: number;
 
-  @Expose({ name: 'ingredient_id' })
-  ingredientId: number;
+  ingredient: IIngredient;
 
   price: number;
 
@@ -24,7 +26,7 @@ export class OrderItemDTO {
 }
 
 export class OrdersDTO {
-  static toDTO(order: Order, orderItems: OrderItem[]) {
+  static toDTO(order: Order, orderItems: IOrderItem[]) {
     const res = new OrdersDTO();
 
     res.id = order.id;

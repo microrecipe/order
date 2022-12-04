@@ -26,6 +26,15 @@ import { OrderItem } from './entities/order-item.entity';
           url: `${process.env.RECIPE_HOST}:${process.env.RECIPE_GRPC_PORT}`,
         },
       },
+      {
+        name: ClientPackageNames.ingredientGRPC,
+        transport: Transport.GRPC,
+        options: {
+          package: 'ingredients',
+          protoPath: join(__dirname, '../src/proto/ingredients.proto'),
+          url: `${process.env.INGREDIENT_HOST}:${process.env.INGREDIENT_GRPC_PORT}`,
+        },
+      },
     ]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

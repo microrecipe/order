@@ -1,4 +1,6 @@
 export enum ClientPackageNames {
-  recipeGRPC = 'RECIPES_GRPC_SERVICE',
-  recipeTCP = 'RECIPES_TCP_SERVICE',
+  recipeGRPC = 'RECIPE_GRPC_SERVICE',
+  recipeTCP = 'RECIPE_TCP_SERVICE',
+  ingredientGRPC = 'INGREDIENT_GRPC_SERVICE',
+  ingredientTCP = 'INGREDIENT_TCP_SERVICE',
 }
