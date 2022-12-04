@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
-import { CartsDTO } from './orders.dto';
+import { OrdersDTO } from './orders.dto';
 import { IRecipe, RecipesService, UserType } from './orders.interface';
 import { ClientPackageNames } from './package-names.enum';
 
@@ -29,7 +29,7 @@ export class AppService implements OnModuleInit {
   async addToCartFromRecipeId(
     recipeId: number,
     user: UserType,
-  ): Promise<CartsDTO> {
+  ): Promise<OrdersDTO> {
     let order = await this.ordersRepository.findOneBy({
       userId: user.id,
       orderStatus: null,
@@ -53,13 +53,13 @@ export class AppService implements OnModuleInit {
     const orderItems: OrderItem[] = [];
 
     for (const ingredient of recipe.ingredients) {
-      let cartItem = await this.orderItemsRepository.findOneBy({
+      let orderItem = await this.orderItemsRepository.findOneBy({
         ingredientId: ingredient.id,
         order: { id: order.id },
       });
 
-      if (!cartItem) {
-        cartItem = await this.orderItemsRepository.save(
+      if (!orderItem) {
+        orderItem = await this.orderItemsRepository.save(
           this.orderItemsRepository.create({
             order: { id: order.id },
             ingredientId: ingredient.id,
@@ -68,13 +68,13 @@ export class AppService implements OnModuleInit {
           }),
         );
       } else {
-        cartItem.quantity += ingredient.quantity;
-        cartItem = await this.orderItemsRepository.save(cartItem);
+        orderItem.quantity += ingredient.quantity;
+        orderItem = await this.orderItemsRepository.save(orderItem);
       }
 
-      orderItems.push(cartItem);
+      orderItems.push(orderItem);
     }
 
-    return CartsDTO.toDTO(order, orderItems);
+    return OrdersDTO.toDTO(order, orderItems);
   }
 }

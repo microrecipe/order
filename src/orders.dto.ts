@@ -23,9 +23,9 @@ export class OrderItemDTO {
   quantity: number;
 }
 
-export class CartsDTO {
+export class OrdersDTO {
   static toDTO(order: Order, orderItems: OrderItem[]) {
-    const res = new CartsDTO();
+    const res = new OrdersDTO();
 
     res.id = order.id;
     res.orderItems = orderItems.map((orderItem) =>

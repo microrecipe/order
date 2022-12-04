@@ -9,7 +9,7 @@ import {
 import { AppService } from './app.service';
 import { UserPayload } from './auth/auth.decorator';
 import { JwtAuthGuard } from './auth/auth.guard';
-import { CartsDTO } from './orders.dto';
+import { OrdersDTO } from './orders.dto';
 import { UserType } from './orders.interface';
 
 @Controller('orders')
@@ -19,10 +19,10 @@ export class AppController {
 
   @Post('carts/recipes/:recipeId')
   @UseGuards(JwtAuthGuard)
-  async addToCardFromRecipeId(
+  async addToCartFromRecipeId(
     @Param('recipeId') recipeId: number,
     @UserPayload() user: UserType,
-  ): Promise<CartsDTO> {
+  ): Promise<OrdersDTO> {
     return await this.service.addToCartFromRecipeId(recipeId, user);
   }
 }
