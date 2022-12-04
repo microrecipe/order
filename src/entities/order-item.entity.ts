@@ -2,25 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Cart } from './cart.entity';
+import { Order } from './order.entity';
 
-@Entity('cart_items')
-export class CartItem {
+@Entity('order_items')
+export class OrderItem {
   @PrimaryGeneratedColumn('increment')
   id: number;
-
-  @ManyToOne(() => Cart, {
-    nullable: true,
-    eager: true,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ referencedColumnName: 'id', name: 'cart_id' })
-  cart: Cart;
 
   @Column({
     name: 'ingredient_id',
@@ -28,6 +19,13 @@ export class CartItem {
     nullable: true,
   })
   ingredientId: number;
+
+  @ManyToOne(() => Order, {
+    nullable: true,
+    eager: true,
+    onDelete: 'CASCADE',
+  })
+  order: Order;
 
   @Column({
     name: 'price',

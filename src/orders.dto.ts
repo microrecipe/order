@@ -1,15 +1,15 @@
 import { Expose } from 'class-transformer';
-import { CartItem } from './entities/cart-item.entity';
-import { Cart } from './entities/cart.entity';
+import { OrderItem } from './entities/order-item.entity';
+import { Order } from './entities/order.entity';
 
-export class CartItemDTO {
-  static toDTO(cartItem: CartItem) {
-    const res = new CartItemDTO();
+export class OrderItemDTO {
+  static toDTO(orderItem: OrderItem) {
+    const res = new OrderItemDTO();
 
-    res.id = cartItem.id;
-    res.ingredientId = cartItem.ingredientId;
-    res.price = cartItem.price;
-    res.quantity = cartItem.quantity;
+    res.id = orderItem.id;
+    res.ingredientId = orderItem.ingredientId;
+    res.price = orderItem.price;
+    res.quantity = orderItem.quantity;
 
     return res;
   }
@@ -24,21 +24,23 @@ export class CartItemDTO {
 }
 
 export class CartsDTO {
-  static toDTO(cart: Cart, cartItems: CartItem[]) {
+  static toDTO(order: Order, orderItems: OrderItem[]) {
     const res = new CartsDTO();
 
-    res.id = cart.id;
-    res.cartItems = cartItems.map((cartItem) => CartItemDTO.toDTO(cartItem));
-    res.totalPrice = cartItems
-      .map((cartItem) => cartItem.price * cartItem.quantity)
+    res.id = order.id;
+    res.orderItems = orderItems.map((orderItem) =>
+      OrderItemDTO.toDTO(orderItem),
+    );
+    res.totalPrice = orderItems
+      .map((orderItem) => orderItem.price * orderItem.quantity)
       .reduce((a, b) => a + b, 0);
 
     return res;
   }
   id: number;
 
-  @Expose({ name: 'cart_items' })
-  cartItems: CartItemDTO[];
+  @Expose({ name: 'order_items' })
+  orderItems: OrderItemDTO[];
 
   @Expose({ name: 'total_price' })
   totalPrice: number;

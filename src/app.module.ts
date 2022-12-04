@@ -7,10 +7,9 @@ import { Transport } from '@nestjs/microservices/enums';
 import { ClientPackageNames } from './package-names.enum';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Cart } from './entities/cart.entity';
 import { Order } from './entities/order.entity';
 import { JwtStrategy } from './auth/jwt.strategy';
-import { CartItem } from './entities/cart-item.entity';
+import { OrderItem } from './entities/order-item.entity';
 
 @Module({
   imports: [
@@ -44,7 +43,7 @@ import { CartItem } from './entities/cart-item.entity';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([Cart, Order, CartItem]),
+    TypeOrmModule.forFeature([Order, OrderItem]),
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

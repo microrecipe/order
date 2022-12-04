@@ -2,8 +2,7 @@ import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices/interfaces';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CartItem } from './entities/cart-item.entity';
-import { Cart } from './entities/cart.entity';
+import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
 import { CartsDTO } from './orders.dto';
 import { IRecipe, RecipesService, UserType } from './orders.interface';
@@ -16,10 +15,8 @@ export class AppService implements OnModuleInit {
   constructor(
     @Inject(ClientPackageNames.recipeGRPC)
     private recipeGrpcClient: ClientGrpc,
-    @InjectRepository(Cart)
-    private cartsRepository: Repository<Cart>,
-    @InjectRepository(CartItem)
-    private cartItemsRepository: Repository<CartItem>,
+    @InjectRepository(OrderItem)
+    private orderItemsRepository: Repository<OrderItem>,
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
   ) {}
@@ -29,23 +26,10 @@ export class AppService implements OnModuleInit {
       this.recipeGrpcClient.getService<RecipesService>('RecipesService');
   }
 
-  private async getCart(user: UserType): Promise<Cart> {
-    let cart = await this.cartsRepository.findOneBy({
-      userId: user.id,
-    });
-
-    if (!cart) {
-      cart = await this.cartsRepository.save(
-        this.cartsRepository.create({
-          userId: user.id,
-        }),
-      );
-    }
-
-    return cart;
-  }
-
-  private async getOrder(user: UserType): Promise<Order> {
+  async addToCartFromRecipeId(
+    recipeId: number,
+    user: UserType,
+  ): Promise<CartsDTO> {
     let order = await this.ordersRepository.findOneBy({
       userId: user.id,
       orderStatus: null,
@@ -55,18 +39,10 @@ export class AppService implements OnModuleInit {
       order = await this.ordersRepository.save(
         this.ordersRepository.create({
           userId: user.id,
+          orderStatus: null,
         }),
       );
     }
-
-    return order;
-  }
-
-  async addToCartFromRecipeId(
-    recipeId: number,
-    user: UserType,
-  ): Promise<CartsDTO> {
-    const cart = await this.getCart(user);
 
     let recipe: IRecipe;
 
@@ -74,18 +50,18 @@ export class AppService implements OnModuleInit {
       recipe = val;
     });
 
-    const cartItems: CartItem[] = [];
+    const orderItems: OrderItem[] = [];
 
     for (const ingredient of recipe.ingredients) {
-      let cartItem = await this.cartItemsRepository.findOneBy({
+      let cartItem = await this.orderItemsRepository.findOneBy({
         ingredientId: ingredient.id,
-        cart: { id: cart.id },
+        order: { id: order.id },
       });
 
       if (!cartItem) {
-        cartItem = await this.cartItemsRepository.save(
-          this.cartItemsRepository.create({
-            cart: { id: cart.id },
+        cartItem = await this.orderItemsRepository.save(
+          this.orderItemsRepository.create({
+            order: { id: order.id },
             ingredientId: ingredient.id,
             price: ingredient.price,
             quantity: ingredient.quantity,
@@ -93,12 +69,12 @@ export class AppService implements OnModuleInit {
         );
       } else {
         cartItem.quantity += ingredient.quantity;
-        cartItem = await this.cartItemsRepository.save(cartItem);
+        cartItem = await this.orderItemsRepository.save(cartItem);
       }
 
-      cartItems.push(cartItem);
+      orderItems.push(cartItem);
     }
 
-    return CartsDTO.toDTO(cart, cartItems);
+    return CartsDTO.toDTO(order, orderItems);
   }
 }
