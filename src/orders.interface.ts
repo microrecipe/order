@@ -88,7 +88,3 @@ export interface OrderPlacedPayload {
 export interface DeliveriesService {
   getCourierById(courierId: CourierId): Observable<ICourier>;
 }
-
-export enum TopicNames {
-  orderPlaced = 'order.placed',
-}

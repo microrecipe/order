@@ -16,11 +16,10 @@ import {
   UserType,
   CheckoutData,
   OrderPlacedPayload,
-  TopicNames,
   DeliveriesService,
   ICourier,
 } from './orders.interface';
-import { ClientPackageNames } from './package-names.enum';
+import { ClientPackageNames, TopicNames } from './orders.enum';
 
 @Injectable()
 export class AppService implements OnModuleInit {

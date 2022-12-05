@@ -6,3 +6,7 @@ export enum ClientPackageNames {
   deliveryGRPC = 'DELIVERY_GRPC_SERVICE',
   orderPlacedTopic = 'ORDER_PLACED_TOPIC',
 }
+
+export enum TopicNames {
+  orderPlaced = 'order.placed',
+}
