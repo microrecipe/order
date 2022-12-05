@@ -104,3 +104,9 @@ export interface PaymentsService {
     paymentMethodId: PaymentMethodId,
   ): Observable<IPaymentMethod>;
 }
+
+export interface PaymentPaidPayload {
+  paymentId: number;
+  order: OrderPlacedPayload;
+  timestamp: Date;
+}

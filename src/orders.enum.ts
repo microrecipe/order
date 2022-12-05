@@ -6,8 +6,10 @@ export enum ClientPackageNames {
   deliveryGRPC = 'DELIVERY_GRPC_SERVICE',
   paymentGRPC = 'PAYMENT_GRPC_SERVICE',
   orderPlacedTopic = 'ORDER_PLACED_TOPIC',
+  paymentPaidTopic = 'PAYMENT_PAID_TOPIC',
 }
 
 export enum TopicNames {
   orderPlaced = 'order.placed',
+  paymentPaid = 'payment.paid',
 }

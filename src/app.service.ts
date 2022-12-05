@@ -258,4 +258,16 @@ export class AppService implements OnModuleInit {
 
     return 'Order placed';
   }
+
+  async handlePaymentPaid(orderId: number): Promise<void> {
+    const order = await this.ordersRepository.findOneByOrFail({
+      id: orderId,
+    });
+
+    order.orderStatus = 'paid';
+
+    await this.ordersRepository.save(order);
+
+    return;
+  }
 }
