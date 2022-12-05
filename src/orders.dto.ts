@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { Order } from './entities/order.entity';
+import { Order, OrderStatus } from './entities/order.entity';
 import {
   CheckoutData,
   IIngredient,
@@ -42,6 +42,8 @@ export class OrdersDTO {
       .map((orderItem) => orderItem.price * orderItem.quantity)
       .reduce((a, b) => a + b, 0);
 
+    res.orderStatus = order.orderStatus;
+
     return res;
   }
   id: number;
@@ -51,6 +53,9 @@ export class OrdersDTO {
 
   @Expose({ name: 'total_price' })
   totalPrice: number;
+
+  @Expose({ name: 'status' })
+  orderStatus: OrderStatus;
 }
 
 export class CheckoutBody implements CheckoutData {
