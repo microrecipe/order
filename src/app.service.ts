@@ -48,24 +48,6 @@ export class AppService implements OnModuleInit {
       );
   }
 
-  private async getOrder(user: UserType): Promise<Order> {
-    let order = await this.ordersRepository.findOneBy({
-      userId: user.id,
-      orderStatus: IsNull(),
-    });
-
-    if (!order) {
-      order = await this.ordersRepository.save(
-        this.ordersRepository.create({
-          userId: user.id,
-          orderStatus: null,
-        }),
-      );
-    }
-
-    return order;
-  }
-
   private async setOrderItems(items: OrderItem[]): Promise<IOrderItem[]> {
     const orderItems: IOrderItem[] = [];
 
@@ -86,7 +68,19 @@ export class AppService implements OnModuleInit {
     recipeId: number,
     user: UserType,
   ): Promise<OrdersDTO> {
-    const order = await this.getOrder(user);
+    let order = await this.ordersRepository.findOneBy({
+      userId: user.id,
+      orderStatus: IsNull(),
+    });
+
+    if (!order) {
+      order = await this.ordersRepository.save(
+        this.ordersRepository.create({
+          userId: user.id,
+          orderStatus: null,
+        }),
+      );
+    }
 
     let recipe: IRecipe;
 
@@ -133,7 +127,14 @@ export class AppService implements OnModuleInit {
   }
 
   async listItemsInCart(user: UserType): Promise<OrderItemDTO[]> {
-    const order = await this.getOrder(user);
+    const order = await this.ordersRepository.findOneBy({
+      userId: user.id,
+      orderStatus: IsNull(),
+    });
+
+    if (!order) {
+      throw new BadRequestException('Cart is empty');
+    }
 
     const orderItems = await this.setOrderItems(
       await this.orderItemsRepository.find({
@@ -179,7 +180,14 @@ export class AppService implements OnModuleInit {
   }
 
   async checkout(data: CheckoutData, user: UserType): Promise<string> {
-    const order = await this.getOrder(user);
+    const order = await this.ordersRepository.findOneBy({
+      userId: user.id,
+      orderStatus: IsNull(),
+    });
+
+    if (!order) {
+      throw new BadRequestException('Cart is empty');
+    }
 
     const orderItems = await this.setOrderItems(
       await this.orderItemsRepository.find({
