@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export type OrderStatus = 'placed' | 'routed' | 'finished';
+export type OrderStatus = 'placed' | 'routed' | 'finished' | 'paid';
 
 @Entity('orders')
 export class Order {
@@ -23,7 +23,7 @@ export class Order {
   @Column({
     name: 'order_status',
     type: 'enum',
-    enum: ['placed', 'shipping', 'finished'],
+    enum: ['placed', 'shipping', 'finished', 'paid'],
     nullable: true,
   })
   orderStatus: OrderStatus;
