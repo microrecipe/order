@@ -132,14 +132,10 @@ export class AppService implements OnModuleInit {
       orderStatus: IsNull(),
     });
 
-    if (!order) {
-      throw new BadRequestException('Cart is empty');
-    }
-
     const orderItems = await this.setOrderItems(
       await this.orderItemsRepository.find({
         where: {
-          order: { id: order.id },
+          order: { id: order?.id },
         },
         order: {
           id: 'asc',
@@ -165,7 +161,7 @@ export class AppService implements OnModuleInit {
       const orderItems = await this.setOrderItems(
         await this.orderItemsRepository.find({
           where: {
-            order: { id: order.id },
+            order: { id: order?.id },
           },
           order: {
             id: 'asc',
