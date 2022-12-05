@@ -36,6 +36,15 @@ import { OrderItem } from './entities/order-item.entity';
         },
       },
       {
+        name: ClientPackageNames.deliveryGRPC,
+        transport: Transport.GRPC,
+        options: {
+          package: 'deliveries',
+          protoPath: join(__dirname, '../src/proto/deliveries.proto'),
+          url: `${process.env.DELIVERY_HOST}:${process.env.DELIVERY_GRPC_PORT}`,
+        },
+      },
+      {
         name: ClientPackageNames.orderPlacedTopic,
         transport: Transport.KAFKA,
         options: {

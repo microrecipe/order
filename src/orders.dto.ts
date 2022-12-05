@@ -2,6 +2,7 @@ import { Expose } from 'class-transformer';
 import { Order, OrderStatus } from './entities/order.entity';
 import {
   CheckoutData,
+  ICourier,
   IIngredient,
   IOrderItem,
   OrderPlacedPayload,
@@ -74,14 +75,14 @@ export class OrderPlacedPayloadDTO implements OrderPlacedPayload {
 
     res.orderId = value.orderId;
     res.cartItems = value.cartItems;
-    res.courierId = value.courierId;
+    res.courier = value.courier;
     res.paymentId = value.paymentId;
     res.userId = value.userId;
     res.timestamp = value.timestamp;
   }
   orderId: number;
   cartItems: IOrderItem[];
-  courierId: number;
+  courier: ICourier;
   paymentId: number;
   userId: number;
   timestamp: Date;

@@ -17,6 +17,8 @@ import {
   CheckoutData,
   OrderPlacedPayload,
   TopicNames,
+  DeliveriesService,
+  ICourier,
 } from './orders.interface';
 import { ClientPackageNames } from './package-names.enum';
 
@@ -24,12 +26,15 @@ import { ClientPackageNames } from './package-names.enum';
 export class AppService implements OnModuleInit {
   private recipesService: RecipesService;
   private ingredientsService: IngredientsService;
+  private deliveriesService: DeliveriesService;
 
   constructor(
     @Inject(ClientPackageNames.recipeGRPC)
     private recipeGrpcClient: ClientGrpc,
     @Inject(ClientPackageNames.ingredientGRPC)
     private ingredientGrpcClient: ClientGrpc,
+    @Inject(ClientPackageNames.deliveryGRPC)
+    private deliveriesGrpcClient: ClientGrpc,
     @Inject(ClientPackageNames.orderPlacedTopic)
     private orderPlacedTopic: ClientKafka,
     @InjectRepository(OrderItem)
@@ -45,6 +50,11 @@ export class AppService implements OnModuleInit {
     this.ingredientsService =
       this.ingredientGrpcClient.getService<IngredientsService>(
         'IngredientsService',
+      );
+
+    this.deliveriesService =
+      this.deliveriesGrpcClient.getService<DeliveriesService>(
+        'DeliveriesService',
       );
   }
 
@@ -200,6 +210,16 @@ export class AppService implements OnModuleInit {
       throw new BadRequestException('Cart is empty');
     }
 
+    let courier: ICourier;
+
+    await this.deliveriesService
+      .getCourierById({
+        id: data.courierId,
+      })
+      .forEach((val) => {
+        courier = val;
+      });
+
     order.orderStatus = 'placed';
 
     await this.ordersRepository.save(order);
@@ -213,7 +233,7 @@ export class AppService implements OnModuleInit {
           quantity: item.quantity,
           price: item.price,
         })),
-        courierId: data.courierId,
+        courier,
         paymentId: data.paymentId,
         userId: user.id,
         timestamp: order.updatedAt,

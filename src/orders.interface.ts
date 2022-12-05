@@ -66,13 +66,27 @@ export interface CheckoutData {
   courierId: number;
 }
 
+export interface ICourier {
+  id?: number;
+  name?: string;
+  shippingCost?: number;
+}
+
+export interface CourierId {
+  id: number;
+}
+
 export interface OrderPlacedPayload {
   orderId: number;
-  cartItems: IOrderItem[];
-  courierId: number;
+  cartItems: Array<IOrderItem>;
+  courier: ICourier;
   paymentId: number;
   userId: number;
   timestamp: Date;
+}
+
+export interface DeliveriesService {
+  getCourierById(courierId: CourierId): Observable<ICourier>;
 }
 
 export enum TopicNames {
