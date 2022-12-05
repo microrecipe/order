@@ -4,6 +4,7 @@ export enum ClientPackageNames {
   ingredientGRPC = 'INGREDIENT_GRPC_SERVICE',
   ingredientTCP = 'INGREDIENT_TCP_SERVICE',
   deliveryGRPC = 'DELIVERY_GRPC_SERVICE',
+  paymentGRPC = 'PAYMENT_GRPC_SERVICE',
   orderPlacedTopic = 'ORDER_PLACED_TOPIC',
 }
 

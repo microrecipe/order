@@ -18,6 +18,8 @@ import {
   OrderPlacedPayload,
   DeliveriesService,
   ICourier,
+  PaymentsService,
+  IPaymentMethod,
 } from './orders.interface';
 import { ClientPackageNames, TopicNames } from './orders.enum';
 
@@ -26,6 +28,7 @@ export class AppService implements OnModuleInit {
   private recipesService: RecipesService;
   private ingredientsService: IngredientsService;
   private deliveriesService: DeliveriesService;
+  private paymentsService: PaymentsService;
 
   constructor(
     @Inject(ClientPackageNames.recipeGRPC)
@@ -34,6 +37,8 @@ export class AppService implements OnModuleInit {
     private ingredientGrpcClient: ClientGrpc,
     @Inject(ClientPackageNames.deliveryGRPC)
     private deliveriesGrpcClient: ClientGrpc,
+    @Inject(ClientPackageNames.paymentGRPC)
+    private paymentsGrpcService: ClientGrpc,
     @Inject(ClientPackageNames.orderPlacedTopic)
     private orderPlacedTopic: ClientKafka,
     @InjectRepository(OrderItem)
@@ -55,6 +60,9 @@ export class AppService implements OnModuleInit {
       this.deliveriesGrpcClient.getService<DeliveriesService>(
         'DeliveriesService',
       );
+
+    this.paymentsService =
+      this.paymentsGrpcService.getService<PaymentsService>('PaymentsService');
   }
 
   private async setOrderItems(items: OrderItem[]): Promise<IOrderItem[]> {
@@ -144,7 +152,7 @@ export class AppService implements OnModuleInit {
     const orderItems = await this.setOrderItems(
       await this.orderItemsRepository.find({
         where: {
-          order: { id: order?.id },
+          order: { id: order?.id, orderStatus: IsNull() },
         },
         order: {
           id: 'asc',
@@ -219,6 +227,14 @@ export class AppService implements OnModuleInit {
         courier = val;
       });
 
+    let paymentMethod: IPaymentMethod;
+
+    await this.paymentsService
+      .getPaymentMethodById({ id: data.paymentId })
+      .forEach((val) => {
+        paymentMethod = val;
+      });
+
     order.orderStatus = 'placed';
 
     await this.ordersRepository.save(order);
@@ -233,9 +249,10 @@ export class AppService implements OnModuleInit {
           price: item.price,
         })),
         courier,
-        paymentId: data.paymentId,
+        paymentMethod,
         userId: user.id,
         timestamp: order.updatedAt,
+        address: data.address,
       },
     );
 

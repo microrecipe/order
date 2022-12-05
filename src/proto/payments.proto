@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package payments;
+
+service PaymentsService {
+  rpc GetPaymentMethodById (PaymentMethodId) returns (PaymentMethod) {}
+}
+
+message PaymentMethodId {
+  int32 id = 1;
+}
+
+message PaymentMethod {
+  int32 id = 1;
+  string name = 2;
+}

@@ -76,15 +76,31 @@ export interface CourierId {
   id: number;
 }
 
+export interface PaymentMethodId {
+  id: number;
+}
+
+export interface IPaymentMethod {
+  id?: number;
+  name?: string;
+}
+
 export interface OrderPlacedPayload {
   orderId: number;
   cartItems: Array<IOrderItem>;
   courier: ICourier;
-  paymentId: number;
+  paymentMethod: IPaymentMethod;
   userId: number;
+  address: string;
   timestamp: Date;
 }
 
 export interface DeliveriesService {
   getCourierById(courierId: CourierId): Observable<ICourier>;
+}
+
+export interface PaymentsService {
+  getPaymentMethodById(
+    paymentMethodId: PaymentMethodId,
+  ): Observable<IPaymentMethod>;
 }

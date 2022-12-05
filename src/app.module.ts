@@ -45,6 +45,15 @@ import { OrderItem } from './entities/order-item.entity';
         },
       },
       {
+        name: ClientPackageNames.paymentGRPC,
+        transport: Transport.GRPC,
+        options: {
+          package: 'payments',
+          protoPath: join(__dirname, '../src/proto/payments.proto'),
+          url: `${process.env.PAYMENT_HOST}:${process.env.PAYMENT_GRPC_PORT}`,
+        },
+      },
+      {
         name: ClientPackageNames.orderPlacedTopic,
         transport: Transport.KAFKA,
         options: {
