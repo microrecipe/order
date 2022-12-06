@@ -12,4 +12,7 @@ export enum ClientPackageNames {
 export enum TopicNames {
   orderPlaced = 'order.placed',
   paymentPaid = 'payment.paid',
+  deliveryOrdered = 'delivery.ordered',
+  deliveryRouted = 'delivery.routed',
+  deliveryFinished = 'delivery.finished',
 }

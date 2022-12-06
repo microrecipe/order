@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject, Logger } from '@nestjs/common';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import { ClientKafka } from '@nestjs/microservices';
 import { ClientGrpc } from '@nestjs/microservices/interfaces';
@@ -20,6 +20,7 @@ import {
   ICourier,
   PaymentsService,
   IPaymentMethod,
+  DeliveryTopicPayload,
 } from './orders.interface';
 import { ClientPackageNames, TopicNames } from './orders.enum';
 
@@ -29,6 +30,8 @@ export class AppService implements OnModuleInit {
   private ingredientsService: IngredientsService;
   private deliveriesService: DeliveriesService;
   private paymentsService: PaymentsService;
+
+  private logger = new Logger('OrdersService');
 
   constructor(
     @Inject(ClientPackageNames.recipeGRPC)
@@ -267,6 +270,44 @@ export class AppService implements OnModuleInit {
     order.orderStatus = 'paid';
 
     await this.ordersRepository.save(order);
+
+    return;
+  }
+
+  async handleDeliveryOrdered(data: DeliveryTopicPayload): Promise<void> {
+    const order = await this.ordersRepository.findOneByOrFail({
+      id: data.order.orderId,
+    });
+
+    order.orderStatus = 'ordered';
+
+    await this.ordersRepository.save(order);
+
+    return;
+  }
+
+  async handleDeliveryRouted(data: DeliveryTopicPayload): Promise<void> {
+    const order = await this.ordersRepository.findOneByOrFail({
+      id: data.order.orderId,
+    });
+
+    order.orderStatus = 'routed';
+
+    await this.ordersRepository.save(order);
+
+    return;
+  }
+
+  async handleDeliveryFinished(data: DeliveryTopicPayload): Promise<void> {
+    const order = await this.ordersRepository.findOneByOrFail({
+      id: data.order.orderId,
+    });
+
+    order.orderStatus = 'finished';
+
+    await this.ordersRepository.save(order);
+
+    this.logger.log('order finished');
 
     return;
   }

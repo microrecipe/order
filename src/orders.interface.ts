@@ -110,3 +110,8 @@ export interface PaymentPaidPayload {
   order: OrderPlacedPayload;
   timestamp: Date;
 }
+
+export interface DeliveryTopicPayload {
+  order: OrderPlacedPayload;
+  timestamp: Date;
+}

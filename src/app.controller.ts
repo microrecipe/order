@@ -15,7 +15,11 @@ import { JwtAuthGuard } from './auth/auth.guard';
 import { OrderStatus } from './entities/order.entity';
 import { CheckoutBody, OrderItemDTO, OrdersDTO } from './orders.dto';
 import { TopicNames } from './orders.enum';
-import { PaymentPaidPayload, UserType } from './orders.interface';
+import {
+  DeliveryTopicPayload,
+  PaymentPaidPayload,
+  UserType,
+} from './orders.interface';
 
 @Controller('orders')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -62,5 +66,26 @@ export class AppController {
     @Payload() message: PaymentPaidPayload,
   ): Promise<void> {
     return await this.service.handlePaymentPaid(message.order.orderId);
+  }
+
+  @EventPattern(TopicNames.deliveryOrdered)
+  async handleDeliveryOrdered(
+    @Payload() payload: DeliveryTopicPayload,
+  ): Promise<void> {
+    return await this.service.handleDeliveryOrdered(payload);
+  }
+
+  @EventPattern(TopicNames.deliveryRouted)
+  async handleDeliveryRouted(
+    @Payload() payload: DeliveryTopicPayload,
+  ): Promise<void> {
+    return await this.service.handleDeliveryRouted(payload);
+  }
+
+  @EventPattern(TopicNames.deliveryFinished)
+  async handleDeliveryFinished(
+    @Payload() payload: DeliveryTopicPayload,
+  ): Promise<void> {
+    return await this.service.handleDeliveryFinished(payload);
   }
 }
