@@ -72,7 +72,6 @@ export class AppService implements OnModuleInit {
     const orderItems: IOrderItem[] = [];
 
     for (const item of items) {
-      console.log(item.ingredientId);
       await this.ingredientsService
         .getIngredientById({
           id: item.ingredientId,
