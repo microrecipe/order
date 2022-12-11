@@ -37,4 +37,11 @@ export class Order {
 
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: Date;
+
+  @Column({
+    name: 'placed_at',
+    type: 'timestamp',
+    nullable: true,
+  })
+  placedAt: Date;
 }

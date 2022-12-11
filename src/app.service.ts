@@ -170,9 +170,14 @@ export class AppService implements OnModuleInit {
     user: UserType,
     orderStatus: OrderStatus,
   ): Promise<OrdersDTO[]> {
-    const orders = await this.ordersRepository.findBy({
-      userId: user.id,
-      orderStatus,
+    const orders = await this.ordersRepository.find({
+      where: {
+        userId: user.id,
+        orderStatus,
+      },
+      order: {
+        placedAt: 'desc',
+      },
     });
 
     const ordersList: ListOrder[] = [];
@@ -239,6 +244,7 @@ export class AppService implements OnModuleInit {
       });
 
     order.orderStatus = 'placed';
+    order.placedAt = new Date();
 
     await this.ordersRepository.save(order);
 

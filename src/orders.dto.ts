@@ -39,6 +39,8 @@ export class OrdersDTO {
 
     res.orderStatus = order.orderStatus;
 
+    res.placedAt = order.placedAt;
+
     return res;
   }
   id: number;
@@ -51,6 +53,9 @@ export class OrdersDTO {
 
   @Expose({ name: 'status' })
   orderStatus: OrderStatus;
+
+  @Expose({ name: 'placed_at' })
+  placedAt: Date;
 }
 
 export class CheckoutBody implements CheckoutData {
