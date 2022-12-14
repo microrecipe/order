@@ -176,23 +176,25 @@ export class AppService implements OnModuleInit {
         orderStatus,
       },
       order: {
-        placedAt: 'desc',
+        placedAt: {
+          direction: 'desc',
+          nulls: 'last',
+        },
       },
     });
 
     const ordersList: ListOrder[] = [];
 
     for (const order of orders) {
-      const orderItems = await this.setOrderItems(
-        await this.orderItemsRepository.find({
-          where: {
-            order: { id: order?.id, orderStatus: IsNull() },
-          },
-          order: {
-            id: 'asc',
-          },
-        }),
-      );
+      const items = await this.orderItemsRepository.find({
+        where: {
+          order: { id: order?.id },
+        },
+        order: {
+          id: 'asc',
+        },
+      });
+      const orderItems = await this.setOrderItems(items);
 
       ordersList.push({ order, orderItems });
     }
