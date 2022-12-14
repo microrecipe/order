@@ -268,6 +268,26 @@ export class AppService implements OnModuleInit {
     return 'Order placed';
   }
 
+  async countItemsInCart(user: UserType): Promise<number> {
+    const order = await this.ordersRepository.findOneBy({
+      userId: user.id,
+      orderStatus: IsNull(),
+    });
+
+    const orderItems = await this.setOrderItems(
+      await this.orderItemsRepository.find({
+        where: {
+          order: { id: order?.id, orderStatus: IsNull() },
+        },
+        order: {
+          id: 'asc',
+        },
+      }),
+    );
+
+    return orderItems.reduce((a, b) => a + b.quantity, 0);
+  }
+
   async handlePaymentPaid(orderId: number): Promise<void> {
     const order = await this.ordersRepository.findOneByOrFail({
       id: orderId,

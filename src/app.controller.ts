@@ -61,6 +61,12 @@ export class AppController {
     return await this.service.checkout(body, user);
   }
 
+  @Get('carts/count')
+  @UseGuards(JwtAuthGuard)
+  async countItemsInCart(@UserPayload() user: UserType): Promise<number> {
+    return await this.service.countItemsInCart(user);
+  }
+
   @EventPattern(TopicNames.paymentPaid)
   async handlePaymentPaid(
     @Payload() message: PaymentPaidPayload,
