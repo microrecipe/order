@@ -7,7 +7,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Body, Query } from '@nestjs/common/decorators';
+import { Body, Delete, Query } from '@nestjs/common/decorators';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import { UserPayload } from './auth/auth.decorator';
@@ -65,6 +65,15 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   async countItemsInCart(@UserPayload() user: UserType): Promise<number> {
     return await this.service.countItemsInCart(user);
+  }
+
+  @Delete('carts/:itemId')
+  @UseGuards(JwtAuthGuard)
+  async removeItemInCart(
+    @Param('itemId') itemId: number,
+    @UserPayload() user: UserType,
+  ): Promise<string> {
+    return await this.service.removeItemInCart(itemId, user);
   }
 
   @EventPattern(TopicNames.paymentPaid)

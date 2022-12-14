@@ -288,6 +288,22 @@ export class AppService implements OnModuleInit {
     return orderItems.reduce((a, b) => a + b.quantity, 0);
   }
 
+  async removeItemInCart(itemId: number, user: UserType): Promise<string> {
+    const order = await this.ordersRepository.findOneBy({
+      userId: user.id,
+      orderStatus: IsNull(),
+    });
+
+    const orderItem = await this.orderItemsRepository.findOneByOrFail({
+      order: { id: order?.id, orderStatus: IsNull() },
+      id: itemId,
+    });
+
+    await this.orderItemsRepository.softRemove(orderItem);
+
+    return 'Item removed from cart';
+  }
+
   async handlePaymentPaid(orderId: number): Promise<void> {
     const order = await this.ordersRepository.findOneByOrFail({
       id: orderId,
